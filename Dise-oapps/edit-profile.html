@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil - Sonrisocks</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="top-header">
+        <div class="logo-and-name">
+            <img src="image/logo.png" alt="Sonrisocks Logo" class="header-logo">
+            <h1 class="header-title">Sonrisocks</h1>
+        </div>
+    </header>
+
+    <div class="form-container">
+        <div class="form-header">
+            <a href="profile.html" class="back-arrow"><i class="fas fa-arrow-left"></i></a>
+            <h1 class="form-title">Editar Perfil</h1>
+        </div>
+        
+        <form id="editProfileForm">
+            <div class="profile-avatar-edit">
+                <img src="image/default-avatar.png" alt="Avatar de usuario" id="edit-avatar-preview">
+                <label for="avatar-upload" class="upload-button"><i class="fas fa-camera"></i> Cambiar Foto</label>
+                <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+            </div>
+
+            <div class="form-group">
+                <label for="username">Nombre de usuario</label>
+                <input type="text" id="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" disabled> <small>El correo electrónico no se puede modificar.</small>
+            </div>
+            
+            <button type="submit" class="btn btn-solid">GUARDAR CAMBIOS</button>
+            <button type="button" class="btn btn-outline" id="cancel-edit-btn">CANCELAR</button>
+        </form>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+        </a>
+        <a href="cart.html" class="nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Carrito</span>
+            <span class="cart-counter" id="cart-counter"></span>
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <i class="fas fa-user"></i>
+            <span>Perfil</span>
+        </a>
+    </nav>
+    
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            let currentUser = JSON.parse(localStorage.getItem('currentUser')); // Usar 'let' para poder reasignar
+            const avatarPreview = document.getElementById('edit-avatar-preview');
+            const avatarUpload = document.getElementById('avatar-upload');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            const editProfileForm = document.getElementById('editProfileForm');
+            const cancelEditBtn = document.getElementById('cancel-edit-btn');
+
+            // Cargar datos actuales del usuario en el formulario
+            if (currentUser) {
+                usernameInput.value = currentUser.username || '';
+                emailInput.value = currentUser.email || '';
+                if (currentUser.avatar) {
+                    avatarPreview.src = currentUser.avatar;
+                } else {
+                    avatarPreview.src = 'image/default-avatar.png'; // Fallback
+                }
+            } else {
+                alert('No se encontraron datos de usuario para editar.');
+                window.location.href = 'profile.html'; // Redirigir si no hay datos
+            }
+
+            // Manejar la carga de la imagen de perfil
+            avatarUpload.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        avatarPreview.src = e.target.result; // Establece la vista previa con la URL Base64
+                    };
+                    reader.readAsDataURL(file); // Convierte la imagen a Base64
+                }
+            });
+
+            // Manejar el envío del formulario
+            editProfileForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const newUsername = usernameInput.value.trim();
+                const newAvatarBase64 = avatarPreview.src; // La imagen ya está en Base64 o la URL original
+
+                if (newUsername === '') {
+                    alert('El nombre de usuario no puede estar vacío.');
+                    return;
+                }
+
+                // Actualizar los datos del usuario en localStorage
+                const updatedUser = {
+                    ...currentUser, // Mantener todos los demás datos intactos
+                    username: newUsername,
+                    avatar: newAvatarBase64 // Guardar la URL Base64
+                };
+                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                
+                // ¡Importante! También actualizar el usuario en el array 'users'
+                let allUsers = JSON.parse(localStorage.getItem('users')) || [];
+                const userIndex = allUsers.findIndex(user => user.email === currentUser.email);
+                if (userIndex !== -1) {
+                    allUsers[userIndex] = updatedUser;
+                    localStorage.setItem('users', JSON.stringify(allUsers));
+                }
+
+                alert('¡Perfil actualizado con éxito!');
+                window.location.href = 'profile.html'; // Redirigir de nuevo a la página de perfil
+            });
+
+            // Manejar el botón de cancelar
+            cancelEditBtn.addEventListener('click', () => {
+                window.location.href = 'profile.html';
+            });
+        });
+    </script>
+</body>
+</html>

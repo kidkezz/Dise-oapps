@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito - Sonrisocks</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="top-header">
+        <div class="logo-and-name">
+            <img src="image/logo.png" alt="Sonrisocks Logo" class="header-logo">
+            <h1 class="header-title">Sonrisocks</h1>
+        </div>
+    </header>
+
+    <div class="container cart-page-container">
+        <h2>Tu Carrito de Compras</h2>
+        
+        <div class="cart-items-list" id="cart-items-list">
+            <p id="empty-cart-message" class="empty-cart-message">
+                ¡Oops! Tu carrito está vacío. <br>
+                <span class="suggestive-phrase">Explora nuestra colección y dale a tus pies la alegría que merecen.</span>
+                <a href="home.html" class="btn btn-solid shop-now-btn">IR A COMPRAR</a>
+            </p>
+        </div>
+
+        <div class="cart-summary">
+            <p class="cart-total" id="cart-total">Total: $0.00</p>
+            <button class="btn btn-solid checkout-btn" id="checkout-btn">PROCEDER AL PAGO</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+        </a>
+        <a href="cart.html" class="nav-item active">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Carrito</span>
+            <span class="cart-counter" id="cart-counter"></span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Perfil</span>
+        </a>
+    </nav>
+    
+    <script src="js/main.js"></script>
+    <script>
+        // Check authentication on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Render cart items when cart.html loads
+            renderCartItems();
+            updateCartTotal(); // Also update total
+
+            const checkoutBtn = document.getElementById('checkout-btn');
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', () => {
+                    const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+                    if (currentCart.length > 0) {
+                        window.location.href = 'payment.html'; // Redirigir a la pasarela de pago
+                    } else {
+                        
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
